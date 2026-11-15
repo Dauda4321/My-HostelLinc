@@ -1,5 +1,6 @@
-import { AppState, HostelPhoto, UserAccount } from '../types/hostel';
+import { AppState, CampusLocation, HostelPhoto, UserAccount } from '../types/hostel';
 import {
+  CAMPUSES,
   createSeedPhotosForHostel,
   createSeedState,
   HOSTEL_IMAGES,
@@ -7,6 +8,11 @@ import {
 } from '../data/seedData';
 
 const STORAGE_KEY = 'uds_hostelhub_state_v2';
+const VALID_CAMPUSES = new Set<string>(CAMPUSES);
+
+function normalizeCampus(campus: string): CampusLocation {
+  return VALID_CAMPUSES.has(campus) ? (campus as CampusLocation) : 'Tamale';
+}
 
 function resolveBundledImageUrl(url: string, fallback: string): string {
   if (!url) return fallback;
@@ -104,6 +110,7 @@ export function loadAppState(): AppState {
           : createSeedPhotosForHostel(h.id);
       return {
         ...h,
+        campus: normalizeCampus(h.campus),
         imageUrl: resolveBundledImageUrl(h.imageUrl, photos[0]?.url || HOSTEL_IMAGES.royal),
         photos,
       };

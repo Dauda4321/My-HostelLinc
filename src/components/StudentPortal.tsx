@@ -284,7 +284,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
               Verified Campus Hostels with Instant Bed Reservation
             </h1>
             <p className="mt-2.5 text-sm leading-relaxed text-slate-600">
-              Compare room occupancy, transparent utility details, and annual GHS rates across Mr. Abdul-Karim’s Tamale Campus residences and verified partner hostels in Nyankpala, City, and Wa.
+              Compare room occupancy, transparent utility details, and annual GHS rates across Mr. Abdul-Karim’s Tamale Campus residences and verified partner hostels in Nyankpala and City.
             </p>
           </div>
 

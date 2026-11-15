@@ -175,7 +175,7 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
   ];
 }
 
-export const CAMPUSES = ['Tamale', 'Nyankpala', 'City', 'Wa'] as const;
+export const CAMPUSES = ['Tamale', 'Nyankpala', 'City'] as const;
 
 export const DEFAULT_AMENITIES = [
   'Wi-Fi',

@@ -1,4 +1,4 @@
-export type CampusLocation = 'Tamale' | 'Nyankpala' | 'City' | 'Wa';
+export type CampusLocation = 'Tamale' | 'Nyankpala' | 'City';
 
 export type OccupancyType = '1-in-1' | '2-in-1' | '4-in-1';
 

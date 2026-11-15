@@ -261,7 +261,10 @@ export default function App() {
   const handleUpdateHostel = (
     hostelId: string,
     updates: Partial<
-      Pick<Hostel, 'name' | 'contactPhone' | 'description' | 'rules' | 'photos' | 'imageUrl'>
+      Pick<
+        Hostel,
+        'name' | 'campus' | 'contactPhone' | 'description' | 'rules' | 'photos' | 'imageUrl'
+      >
     >
   ) => {
     setAppState((prev) => ({
@@ -560,7 +563,7 @@ export default function App() {
               ·
             </span>
             <span>
-              Student Accommodation Directory for Tamale, Nyankpala, City &amp; Wa Campuses
+              Student Accommodation Directory for Tamale, Nyankpala &amp; City Campuses
             </span>
           </div>
 

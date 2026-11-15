@@ -220,7 +220,7 @@ export const LandlordRegistrationModal: React.FC<LandlordRegistrationModalProps>
         {step === 1 ? (
           <form onSubmit={handleNextStep} className="p-6 space-y-4">
             <p className="text-sm text-slate-600">
-              Register your landlord account to publish hostels across Tamale, Nyankpala, City, or Wa campuses. New listings appear immediately in the Student Portal.
+              Register your landlord account to publish hostels across Tamale, Nyankpala, or City campuses. New listings appear immediately in the Student Portal.
             </p>
 
             <div>

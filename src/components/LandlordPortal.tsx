@@ -36,7 +36,10 @@ interface LandlordPortalProps {
   onUpdateHostel: (
     hostelId: string,
     updates: Partial<
-      Pick<Hostel, 'name' | 'contactPhone' | 'description' | 'rules' | 'photos' | 'imageUrl'>
+      Pick<
+        Hostel,
+        'name' | 'campus' | 'contactPhone' | 'description' | 'rules' | 'photos' | 'imageUrl'
+      >
     >
   ) => void;
   onAddHostelForActiveOwner: (payload: {
@@ -108,6 +111,7 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
   const targetRulesHostel =
     ownerHostels.find((h) => h.id === rulesHostelId) ?? ownerHostels[0];
   const [rulesSavedNotice, setRulesSavedNotice] = useState<string | null>(null);
+  const [editCampus, setEditCampus] = useState<CampusLocation>('Tamale');
   const [editPhone, setEditPhone] = useState<string>('');
   const [editDesc, setEditDesc] = useState<string>('');
   const [editRulesText, setEditRulesText] = useState<string>('');
@@ -117,6 +121,7 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
   // Sync editor inputs when switching target hostel
   if (targetRulesHostel && editingHostelLoadedId !== targetRulesHostel.id) {
     setEditingHostelLoadedId(targetRulesHostel.id);
+    setEditCampus(targetRulesHostel.campus);
     setEditPhone(targetRulesHostel.contactPhone);
     setEditDesc(targetRulesHostel.description);
     setEditRulesText(targetRulesHostel.rules.join('\n'));
@@ -247,6 +252,7 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
       .map((l) => l.trim())
       .filter(Boolean);
     onUpdateHostel(targetRulesHostel.id, {
+      campus: editCampus,
       contactPhone: editPhone.trim() || targetRulesHostel.contactPhone,
       description: editDesc.trim() || targetRulesHostel.description,
       rules: parsedRules.length > 0 ? parsedRules : targetRulesHostel.rules,
@@ -362,7 +368,7 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
             No Hostels Listed Under Your Account Yet
           </h2>
           <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-600">
-            Publish your first hostel on Tamale, Nyankpala, City, or Wa Campus. Once added, your rooms appear immediately in the Student Portal for online booking.
+            Publish your first hostel on Tamale, Nyankpala, or City Campus. Once added, your rooms appear immediately in the Student Portal for online booking.
           </p>
           <button
             type="button"
@@ -767,12 +773,17 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
                 <label className="block text-xs font-semibold text-slate-700">
                   Campus Location
                 </label>
-                <input
-                  type="text"
-                  disabled
-                  value={`${targetRulesHostel.campus} Campus`}
-                  className="mt-1.5 block w-full min-h-[42px] rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
-                />
+                <select
+                  value={editCampus}
+                  onChange={(e) => setEditCampus(e.target.value as CampusLocation)}
+                  className="mt-1.5 block w-full min-h-[42px] rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900"
+                >
+                  {CAMPUSES.map((c) => (
+                    <option key={c} value={c}>
+                      {c} Campus
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
