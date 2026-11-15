@@ -7,6 +7,7 @@ import {
   Search,
   SlidersHorizontal,
   Wrench,
+  X,
 } from 'lucide-react';
 import {
   BookingRecord,
@@ -69,6 +70,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [minRent, setMinRent] = useState<string>('');
   const [maxRent, setMaxRent] = useState<string>('');
   const [availableOnly, setAvailableOnly] = useState<boolean>(false);
+  const [hostelSearchQuery, setHostelSearchQuery] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -108,16 +110,56 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
     return stats;
   }, [hostels, rooms]);
 
-  // Hostels visible in selected campus
+  // Hostels visible in selected campus, live hostel search, and active room filters
   const visibleHostels = useMemo(() => {
-    if (selectedCampus === 'All') return hostels;
-    return hostels.filter((h) => h.campus === selectedCampus);
-  }, [hostels, selectedCampus]);
+    const hq = hostelSearchQuery.trim().toLowerCase();
+    const min = minRent ? Number(minRent) : null;
+    const max = maxRent ? Number(maxRent) : null;
+    const hasRoomConstraints =
+      selectedOccupancy !== 'All' ||
+      (min !== null && !Number.isNaN(min)) ||
+      (max !== null && !Number.isNaN(max)) ||
+      availableOnly;
+
+    return hostels.filter((h) => {
+      if (selectedCampus !== 'All' && h.campus !== selectedCampus) return false;
+      if (hq) {
+        const hay = `${h.name} ${h.ownerName} ${h.campus}`.toLowerCase();
+        if (!hay.includes(hq)) return false;
+      }
+      if (hasRoomConstraints) {
+        const hasMatchingRoom = rooms.some((room) => {
+          if (room.hostelId !== h.id) return false;
+          if (selectedOccupancy !== 'All' && room.occupancyType !== selectedOccupancy) {
+            return false;
+          }
+          if (min !== null && !Number.isNaN(min) && room.annualRentGhs < min) return false;
+          if (max !== null && !Number.isNaN(max) && room.annualRentGhs > max) return false;
+          if (availableOnly && (room.status !== 'Available' || room.availableBeds <= 0)) {
+            return false;
+          }
+          return true;
+        });
+        if (!hasMatchingRoom) return false;
+      }
+      return true;
+    });
+  }, [
+    hostels,
+    rooms,
+    selectedCampus,
+    hostelSearchQuery,
+    selectedOccupancy,
+    minRent,
+    maxRent,
+    availableOnly,
+  ]);
 
   // Filtered rooms
   const filteredRooms = useMemo(() => {
     const min = minRent ? Number(minRent) : null;
     const max = maxRent ? Number(maxRent) : null;
+    const hq = hostelSearchQuery.trim().toLowerCase();
     const q = searchQuery.trim().toLowerCase();
 
     return rooms.filter((room) => {
@@ -130,6 +172,11 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       if (min !== null && !Number.isNaN(min) && room.annualRentGhs < min) return false;
       if (max !== null && !Number.isNaN(max) && room.annualRentGhs > max) return false;
       if (availableOnly && (room.status !== 'Available' || room.availableBeds <= 0)) return false;
+
+      if (hq) {
+        const hostelHay = `${hostel.name} ${hostel.ownerName} ${hostel.campus}`.toLowerCase();
+        if (!hostelHay.includes(hq)) return false;
+      }
 
       if (q) {
         const hay = `${room.roomNumber} ${hostel.name} ${hostel.campus} ${room.occupancyType}`.toLowerCase();
@@ -146,6 +193,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
     minRent,
     maxRent,
     availableOnly,
+    hostelSearchQuery,
     searchQuery,
   ]);
 
@@ -191,6 +239,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
     setMinRent('');
     setMaxRent('');
     setAvailableOnly(false);
+    setHostelSearchQuery('');
     setSearchQuery('');
     setCurrentPage(1);
   };
@@ -310,57 +359,93 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
       {/* Hostel Directory Cards */}
       <section aria-labelledby="hostels-heading" className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 id="hostels-heading" className="font-display text-lg font-bold text-slate-900">
               Hostel Directory
             </h2>
             <p className="text-xs text-slate-600">
-              Select a hostel card to filter its rooms, or browse all properties below.
+              Search by hostel name, inspect photos, or click Filter Rooms to view available bed spaces.
             </p>
           </div>
 
-          {/* Campus Segmented Filter */}
-          <div
-            role="group"
-            aria-label="Filter by UDS Campus"
-            className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white p-1"
-          >
-            {(['All', ...CAMPUSES] as const).map((campus) => {
-              const active = selectedCampus === campus;
-              return (
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+            {/* Live Hostel Name Search Bar */}
+            <div className="relative w-full sm:w-80">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={hostelSearchQuery}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setHostelSearchQuery(next);
+                  setSelectedHostelId('All');
+                  setCurrentPage(1);
+                }}
+                aria-label="Search hostel by name"
+                placeholder="Search hostel by name (e.g., Executive, Annex, Royal)..."
+                className="block w-full min-h-[42px] rounded-lg border border-slate-300 bg-white pl-9 pr-9 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#14532D] focus:outline-none"
+              />
+              {hostelSearchQuery.length > 0 && (
                 <button
-                  key={campus}
                   type="button"
-                  onClick={() => handleCampusChange(campus)}
-                  className={`min-h-[34px] rounded-md px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
-                    active
-                      ? 'bg-[#14532D] text-white'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
+                  onClick={() => {
+                    setHostelSearchQuery('');
+                    setCurrentPage(1);
+                  }}
+                  aria-label="Clear hostel search"
+                  className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                 >
-                  {campus === 'All' ? 'All Campuses' : `${campus}`}
+                  <X className="h-3.5 w-3.5" />
                 </button>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Campus Segmented Filter */}
+            <div
+              role="group"
+              aria-label="Filter by UDS Campus"
+              className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white p-1"
+            >
+              {(['All', ...CAMPUSES] as const).map((campus) => {
+                const active = selectedCampus === campus;
+                return (
+                  <button
+                    key={campus}
+                    type="button"
+                    onClick={() => handleCampusChange(campus)}
+                    className={`min-h-[34px] rounded-md px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                      active
+                        ? 'bg-[#14532D] text-white'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    {campus === 'All' ? 'All Campuses' : `${campus}`}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {visibleHostels.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
-            <Building2 className="mx-auto h-8 w-8 text-slate-400" strokeWidth={1.5} />
-            <p className="mt-2 text-sm font-semibold text-slate-800">
-              No hostels registered on {selectedCampus} Campus yet
+          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+            <Building2 className="mx-auto h-9 w-9 text-slate-400" strokeWidth={1.5} />
+            <p className="mt-3 font-display text-base font-bold text-slate-900">
+              {hostelSearchQuery.trim()
+                ? `No hostels found matching "${hostelSearchQuery.trim()}"`
+                : 'No hostels found matching your active filters'}
             </p>
-            <p className="mt-1 text-xs text-slate-500">
-              Hostel owners can register a property for {selectedCampus} Campus using the button in the top bar.
+            <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed text-slate-500">
+              Check the spelling, try searching for another hostel name, or reset your filters to view all available UDS hostels.
             </p>
             <button
               type="button"
-              onClick={() => handleCampusChange('All')}
-              className="mt-4 inline-flex min-h-[40px] items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              onClick={resetFilters}
+              className="mt-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-[#14532D] px-4 py-2 text-xs font-semibold text-white hover:bg-[#166534]"
             >
-              Show All Campuses
+              <X className="h-3.5 w-3.5" />
+              <span>Clear Search &amp; Filters</span>
             </button>
           </div>
         ) : (
