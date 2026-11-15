@@ -390,7 +390,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                     className="relative h-44 w-full overflow-hidden bg-slate-100 text-left focus-visible:outline-2 focus-visible:outline-[#14532D]"
                   >
                     <HostelImage
-                      src={hostel.imageUrl}
+                      src={hostel.photos?.[0]?.url || hostel.imageUrl}
                       alt={hostel.name}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />

@@ -9,21 +9,37 @@ import {
   UserAccount,
 } from '../types/hostel';
 
+import executiveImg from '../assets/images/hostel_executive_tamale_1794743263277.jpg';
+import annexImg from '../assets/images/hostel_annex_tamale_1794743263526.jpg';
+import royalImg from '../assets/images/hostel_royal_tamale_1794743264325.jpg';
+import roomInteriorImg from '../assets/images/hostel_room_interior_1794743265084.jpg';
+import roomSingleImg from '../assets/images/room_single_suite_1794745586872.jpg';
+import roomQuadImg from '../assets/images/room_quad_shared_1794745587322.jpg';
+import washroomImg from '../assets/images/utility_washroom_1794745587914.jpg';
+import boreholeMetersImg from '../assets/images/utility_borehole_meters_1794745587789.jpg';
+import kitchenImg from '../assets/images/hostel_kitchen_1794745588438.jpg';
+
 export const HOSTEL_IMAGES = {
-  executive: '/src/assets/images/hostel_executive_tamale_1794743263277.jpg',
-  annex: '/src/assets/images/hostel_annex_tamale_1794743263526.jpg',
-  royal: '/src/assets/images/hostel_royal_tamale_1794743264325.jpg',
-  roomInterior: '/src/assets/images/hostel_room_interior_1794743265084.jpg',
-  roomSingle: '/src/assets/images/room_single_suite_1794745586872.jpg',
-  roomQuad: '/src/assets/images/room_quad_shared_1794745587322.jpg',
-  washroom: '/src/assets/images/utility_washroom_1794745587914.jpg',
-  boreholeMeters: '/src/assets/images/utility_borehole_meters_1794745587789.jpg',
-  kitchen: '/src/assets/images/hostel_kitchen_1794745588438.jpg',
+  executive: executiveImg,
+  annex: annexImg,
+  royal: royalImg,
+  roomInterior: roomInteriorImg,
+  roomSingle: roomSingleImg,
+  roomQuad: roomQuadImg,
+  washroom: washroomImg,
+  boreholeMeters: boreholeMetersImg,
+  kitchen: kitchenImg,
 };
 
 export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
   if (hostelId === 'hostel-ak-executive') {
     return [
+      {
+        id: `${hostelId}-p-u3`,
+        category: 'utilities',
+        url: HOSTEL_IMAGES.executive,
+        caption: 'Abdul-Karim Executive Hostel Exterior — Paved gated courtyard & 24-hour security compound',
+      },
       {
         id: `${hostelId}-p-r1`,
         category: 'room',
@@ -58,12 +74,6 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
         caption: 'Mechanized Borehole, Polytank Overhead Storage & Prepaid ECG Meter Bank',
       },
       {
-        id: `${hostelId}-p-u3`,
-        category: 'utilities',
-        url: HOSTEL_IMAGES.executive,
-        caption: 'Paved Gated Courtyard, Overhead Water Tower & 24-Hour Security Compound',
-      },
-      {
         id: `${hostelId}-p-k1`,
         category: 'kitchen',
         url: HOSTEL_IMAGES.kitchen,
@@ -74,6 +84,12 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
 
   if (hostelId === 'hostel-ak-annex') {
     return [
+      {
+        id: `${hostelId}-p-u3`,
+        category: 'utilities',
+        url: HOSTEL_IMAGES.annex,
+        caption: 'Abdul-Karim Annex Hostel Exterior — Perimeter security fence & landscaped compound',
+      },
       {
         id: `${hostelId}-p-r1`,
         category: 'room',
@@ -108,12 +124,6 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
         caption: 'Overhead Polytank Reserve, Borehole Pump & Per-Room Prepaid ECG Meters',
       },
       {
-        id: `${hostelId}-p-u3`,
-        category: 'utilities',
-        url: HOSTEL_IMAGES.annex,
-        caption: 'Perimeter Security Fence, Shaded Study Corridors & Landscaped Compound',
-      },
-      {
         id: `${hostelId}-p-k1`,
         category: 'kitchen',
         url: HOSTEL_IMAGES.kitchen,
@@ -124,6 +134,12 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
 
   // Royal Hostel or default new hostel fallback
   return [
+    {
+      id: `${hostelId}-p-u3`,
+      category: 'utilities',
+      url: HOSTEL_IMAGES.royal,
+      caption: 'Gated Hostel Compound — Courtyard access, standby generator & water reserve',
+    },
     {
       id: `${hostelId}-p-r2`,
       category: 'room',
@@ -149,12 +165,6 @@ export function createSeedPhotosForHostel(hostelId: string): Hostel['photos'] {
       category: 'utilities',
       url: HOSTEL_IMAGES.boreholeMeters,
       caption: 'High-Capacity Polytank Water Towers & Prepaid ECG Electricity Meters',
-    },
-    {
-      id: `${hostelId}-p-u3`,
-      category: 'utilities',
-      url: HOSTEL_IMAGES.royal,
-      caption: 'Gated Courtyard, Standby Backup Generator Enclosure & Water Reserve',
     },
     {
       id: `${hostelId}-p-k1`,

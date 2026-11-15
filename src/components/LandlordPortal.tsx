@@ -250,6 +250,7 @@ export const LandlordPortal: React.FC<LandlordPortalProps> = ({
       contactPhone: editPhone.trim() || targetRulesHostel.contactPhone,
       description: editDesc.trim() || targetRulesHostel.description,
       rules: parsedRules.length > 0 ? parsedRules : targetRulesHostel.rules,
+      imageUrl: editPhotos[0]?.url || targetRulesHostel.imageUrl,
       photos: editPhotos,
     });
     setRulesSavedNotice(`Updated rules, details, and gallery photos for ${targetRulesHostel.name}.`);

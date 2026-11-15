@@ -1,7 +1,37 @@
-import { AppState, UserAccount } from '../types/hostel';
-import { createSeedPhotosForHostel, createSeedState, SEEDED_USERS } from '../data/seedData';
+import { AppState, HostelPhoto, UserAccount } from '../types/hostel';
+import {
+  createSeedPhotosForHostel,
+  createSeedState,
+  HOSTEL_IMAGES,
+  SEEDED_USERS,
+} from '../data/seedData';
 
-const STORAGE_KEY = 'uds_hostelhub_state_v1';
+const STORAGE_KEY = 'uds_hostelhub_state_v2';
+
+function resolveBundledImageUrl(url: string, fallback: string): string {
+  if (!url) return fallback;
+  if (url.startsWith('/src/assets/')) {
+    if (url.includes('hostel_executive')) return HOSTEL_IMAGES.executive;
+    if (url.includes('hostel_annex')) return HOSTEL_IMAGES.annex;
+    if (url.includes('hostel_royal')) return HOSTEL_IMAGES.royal;
+    if (url.includes('room_single')) return HOSTEL_IMAGES.roomSingle;
+    if (url.includes('room_quad')) return HOSTEL_IMAGES.roomQuad;
+    if (url.includes('room_interior')) return HOSTEL_IMAGES.roomInterior;
+    if (url.includes('washroom')) return HOSTEL_IMAGES.washroom;
+    if (url.includes('borehole')) return HOSTEL_IMAGES.boreholeMeters;
+    if (url.includes('kitchen')) return HOSTEL_IMAGES.kitchen;
+    return fallback;
+  }
+  return url;
+}
+
+function sanitizePhotos(photos: HostelPhoto[], hostelId: string): HostelPhoto[] {
+  const seed = createSeedPhotosForHostel(hostelId);
+  return photos.map((p, idx) => ({
+    ...p,
+    url: resolveBundledImageUrl(p.url, seed[idx % seed.length]?.url || HOSTEL_IMAGES.roomInterior),
+  }));
+}
 
 export function normalizePhone(value: string): string {
   return value.replace(/[\s\-()]/g, '').trim();
@@ -67,13 +97,23 @@ export function loadAppState(): AppState {
       }
     }
 
-    const upgradedHostels = parsed.hostels.map((h) => ({
-      ...h,
-      photos:
+    const upgradedHostels = parsed.hostels.map((h) => {
+      const photos =
         Array.isArray(h.photos) && h.photos.length > 0
-          ? h.photos
-          : createSeedPhotosForHostel(h.id),
-    }));
+          ? sanitizePhotos(h.photos, h.id)
+          : createSeedPhotosForHostel(h.id);
+      return {
+        ...h,
+        imageUrl: resolveBundledImageUrl(h.imageUrl, photos[0]?.url || HOSTEL_IMAGES.royal),
+        photos,
+      };
+    });
+
+    const upgradedRooms = parsed.rooms.map((r) =>
+      Array.isArray(r.photos) && r.photos.length > 0
+        ? { ...r, photos: sanitizePhotos(r.photos, r.hostelId) }
+        : r
+    );
 
     const upgraded: AppState = {
       users,
@@ -81,7 +121,7 @@ export function loadAppState(): AppState {
       landlords: Array.isArray(parsed.landlords) ? parsed.landlords : [],
       activeLandlordId: parsed.activeLandlordId ?? 'owner-abdul-karim',
       hostels: upgradedHostels,
-      rooms: parsed.rooms,
+      rooms: upgradedRooms,
       bookings: Array.isArray(parsed.bookings) ? parsed.bookings : [],
       tickets: Array.isArray(parsed.tickets) ? parsed.tickets : [],
     };

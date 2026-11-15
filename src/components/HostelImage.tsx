@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building2 } from 'lucide-react';
 
 interface HostelImageProps {
@@ -9,6 +9,10 @@ interface HostelImageProps {
 
 export const HostelImage: React.FC<HostelImageProps> = ({ src, alt, className = '' }) => {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   if (hasError || !src) {
     return (
